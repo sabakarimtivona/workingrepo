@@ -20,7 +20,7 @@ serviceAccount:
   name: ""
 
 podAnnotations: {}
-    keyvaultName: pricingsecrets-1
+
 podSecurityContext: {}
   # fsGroup: 2000
 
