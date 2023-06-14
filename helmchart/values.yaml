@@ -1,7 +1,7 @@
 replicaCount: 1
 
 image:
-    repository: pricingcontainers.azurecr.io/pricingapptest
+    repository: pricingcontainers1.azurecr.io/pricingapptest
     pullPolicy: Always
     tag: "latest"
 
@@ -20,7 +20,7 @@ serviceAccount:
   name: ""
 
 podAnnotations: {}
-
+    keyvaultName: pricingsecrets-1
 podSecurityContext: {}
   # fsGroup: 2000
 
