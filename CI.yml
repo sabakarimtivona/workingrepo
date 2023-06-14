@@ -7,7 +7,7 @@ steps:
   - task: Docker@2
     displayName: 'Pricingapi_Image_Build'
     inputs:
-      containerRegistry: logaacr
+      containerRegistry: AKS-RG
       repository: pricingapptest
       command: buildAndPush
       Dockerfile: '**/Dockerfile'
