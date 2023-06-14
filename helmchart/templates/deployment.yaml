@@ -1,0 +1,109 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "pricingapp.fullname" . }}
+  labels:
+    {{- include "pricingapp.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "pricingapp.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "pricingapp.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "pricingapp.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+          - name: DB_USER
+            valueFrom:
+              secretKeyRef:
+                name: akvsecrets
+                key: dbuser
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: akvsecrets
+                key: dbpassword
+          - name: SUBSCRIPTION_ID
+            valueFrom:
+              secretKeyRef:
+                name: akvsecrets
+                key: subscriptionid
+          - name: CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                name: akvsecrets
+                key: clientid
+          - name: CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: akvsecrets
+                key: clientsecret
+          - name: DB_NAME
+            valueFrom:
+              secretKeyRef:
+                name: akvsecrets
+                key: dbname
+          - name: HOST
+            valueFrom:
+              secretKeyRef:
+                name: akvsecrets
+                key: dbhost     
+          - name: TENANT
+            valueFrom:
+              secretKeyRef:
+                name: akvsecrets
+                key: tenant    
+          - name: port
+            value: "5432"          
+          volumeMounts:
+          - name: secrets-store-inline
+            mountPath: "/mnt/secrets-store"
+            readOnly: true     
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+      - name: secrets-store-inline
+        csi:
+          driver: secrets-store.csi.k8s.io
+          readOnly: true
+          volumeAttributes:
+            secretProviderClass: "azure-kvname"
+          nodePublishSecretRef:
+            name: secrets-store-creds

@@ -1,0 +1,9 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /pricing_api/
+Disallow: /pricing_api/regions/
+Disallow: /pricing_api/regions/<str:region>/
+Disallow: /pricing_api/pricing_plans/
+Disallow: /pricing_api/vm_tiers/
+Disallow: /pricing_api/vm_skus/
+Disallow: /pricing_api/vm_skus/<str:sku>/<str:location>/

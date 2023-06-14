@@ -1,0 +1,28 @@
+[
+    {
+        "model": "auth.user",
+        "pk": 1,
+        "fields": {
+            "username": "user1",
+            "email": "testuser1@example.com",
+            "password": "dvigpknaif",
+            "is_superuser": false,
+            "is_staff": false,
+            "is_active": true,
+            "date_joined": "2022-01-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "auth.user",
+        "pk": 2,
+        "fields": {
+            "username": "user2",
+            "email": "testuser2@example.com",
+            "password": "pbkdf2_sha256",
+            "is_superuser": false,
+            "is_staff": false,
+            "is_active": true,
+            "date_joined": "2022-01-02T00:00:00Z"
+        }
+    }
+]

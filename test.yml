@@ -1,0 +1,40 @@
+  trigger: none
+#   pr:
+#     branches:
+#       include:
+#         - '*'
+jobs:
+- job: RunTests
+  displayName: 'Run Tests'
+  pool:
+    vmImage: 'ubuntu-latest'
+
+  steps:
+  - checkout: self
+  - script: |
+      python3 manage.py run test.py
+
+    displayName: 'Run Tests'
+
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFormat: 'VSTest'
+      testResultsFiles: '**/TestResults/*.trx'
+      failTaskOnFailedTests: true
+  - script: |
+      testResults=$(cat $(System.DefaultWorkingDirectory)/TestResults/*.trx)
+      commentMessage="Test Results:\n\n$testResults"
+
+      # Create the comment using the GitHub REST API
+      apiVersion="v3"
+      url="https://api.github.com/repos/$(Build.Repository.Name)/issues/$(System.PullRequest.PullRequestId)/comments"
+      requestBody=$(printf '{"body": "%s"}' "$commentMessage")
+      response=$(curl -s -u "$(System.AccessToken):" -X POST -H "Content-Type: application/json" -d "$requestBody" "$url")
+
+      # Check if the comment creation was successful
+      if [ "$(echo "$response" | jq -r '.id')" ]; then
+        echo "Test results posted as a comment on the pull request."
+      else
+        echo "Failed to post test results as a comment on the pull request."
+      fi
+  displayName: 'Post Test Results as Comment'   
